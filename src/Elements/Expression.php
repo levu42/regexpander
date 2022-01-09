@@ -78,25 +78,26 @@ class Expression extends Element
                 }
                 $memory .= $char;
             } elseif ($char === '\\') {
-                $assert(($i+1) < $length, "Can't have \\ as the last character in an expression");
-                if (!in_array('[', $bracket_stack)) {
+                $assert(($i + 1) < $length, "Can't have \\ as the last character in an expression");
+                if (! in_array('[', $bracket_stack)) {
                     $pushMemoryConstants();
                 }
-                $nextchar = mb_substr($pattern, $i+1, 1);
+                $nextchar = mb_substr($pattern, $i + 1, 1);
                 $i++;
                 if (in_array($nextchar, ['s', 'S', 'd', 'D', 'w', 'W'])) {
-                    if (!in_array('[', $bracket_stack)) {
+                    if (! in_array('[', $bracket_stack)) {
                         $push(Characters::fromClass($nextchar));
                     } else {
                         $memory .= Characters::classToCharacters($nextchar);
                     }
+
                     continue;
                 }
                 $memory .= $nextchar;
-            } elseif ($char === '.' && !in_array('[', $bracket_stack)) {
+            } elseif ($char === '.' && ! in_array('[', $bracket_stack)) {
                 $pushMemoryConstants();
                 $push(Characters::fromDot());
-            } elseif (in_array($char, ['?', '*', '+']) && !in_array('[', $bracket_stack)) {
+            } elseif (in_array($char, ['?', '*', '+']) && ! in_array('[', $bracket_stack)) {
                 $pushMemoryConstants();
                 $assert($latest instanceof Element, "Can't have $char at the start of an expression");
                 /** @var Element $latest */
@@ -115,15 +116,15 @@ class Expression extends Element
                 if ($char === ']') {
                     $push(Characters::fromPattern($memory));
                 }
-            } elseif ($char === '|' && !in_array('[', $bracket_stack)) {
+            } elseif ($char === '|' && ! in_array('[', $bracket_stack)) {
                 $pushMemoryConstants();
                 $alternativesStack[] = new Expression($stack);
                 $stack = [];
                 $latest = null;
                 $memory = '';
-            } elseif ($char === '{' && !in_array('[', $bracket_stack)) {
-                $assert(($i+1) < $length, "Can't have { as the last character in an expression");
-                $closing_index = mb_strpos($pattern, '}', $i+1);
+            } elseif ($char === '{' && ! in_array('[', $bracket_stack)) {
+                $assert(($i + 1) < $length, "Can't have { as the last character in an expression");
+                $closing_index = mb_strpos($pattern, '}', $i + 1);
                 $assert($closing_index !== false, "Opening { must be matched with closing }");
                 $substr_len = $closing_index - $i - 1;
                 $multiply_info = mb_substr($pattern, $i + 1, $substr_len);
@@ -150,11 +151,11 @@ class Expression extends Element
                 $i = $closing_index;
             } elseif (in_array('[', $bracket_stack) && ($char === '-')) {
                 $assert(mb_strlen($memory) > 0, "Can't have - at the beginning of a character class");
-                $assert(($i+1) < $length, "Can't have - at the end of a character class");
-                $assert(mb_substr($pattern, $i+1, 1) !== ']', "Can't have - at the end of a character class");
+                $assert(($i + 1) < $length, "Can't have - at the end of a character class");
+                $assert(mb_substr($pattern, $i + 1, 1) !== ']', "Can't have - at the end of a character class");
                 $start = mb_ord(mb_substr($memory, -1));
-                $end = mb_ord(mb_substr($pattern, $i+1, 1));
-                for ($j = $start+1; $j <= $end; $j++) {
+                $end = mb_ord(mb_substr($pattern, $i + 1, 1));
+                for ($j = $start + 1; $j <= $end; $j++) {
                     $memory .= mb_chr($j);
                 }
                 $i++;

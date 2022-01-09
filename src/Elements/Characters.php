@@ -32,7 +32,7 @@ class Characters extends Element
 
     public static function classToCharacters(string $which): string
     {
-        return match($which) {
+        return match ($which) {
             'd' => self::digits,
             'D' => self::az . self::extra . self::underscore . self::whitespace,
             'w' => self::az . self::digits . self::underscore,
@@ -62,6 +62,7 @@ class Characters extends Element
         if (strlen($remaining) === 0) {
             throw new RuntimeException("You hit the limits of this library! You excluded with your character class so many characters that we don't have any left to use. Consider a pull request.");
         }
+
         return new self($remaining);
     }
 }
