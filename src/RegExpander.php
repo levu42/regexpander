@@ -9,6 +9,7 @@ class RegExpander
     public static function generate(string $pattern): string
     {
         $expression = new Expression($pattern);
+
         return $expression->generate();
     }
 }

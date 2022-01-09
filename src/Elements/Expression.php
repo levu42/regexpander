@@ -3,25 +3,28 @@
 namespace Levu42\RegExpander\Elements;
 
 use RuntimeException;
-use SebastianBergmann\Environment\Runtime;
 
 class Expression extends Element
 {
     public function __construct(
         private array $elements
-    ) {}
+    ) {
+    }
 
     public function generate(): string
     {
         $return = '';
-        foreach($this->elements as $element) {
+        foreach ($this->elements as $element) {
             $return .= $element->generate();
         }
+
         return $return;
     }
 
-    public static function fromPattern(string $pattern): self {
+    public static function fromPattern(string $pattern): self
+    {
         $elements = self::parse($pattern);
+
         return new self($elements);
     }
 
@@ -40,17 +43,19 @@ class Expression extends Element
             $memory = '';
         };
         $assert = function (bool $expression, string $error) {
-            if (!$expression) throw new RuntimeException($error);
+            if (! $expression) {
+                throw new RuntimeException($error);
+            }
         };
         $replaceLast = function (Element $e) use (&$stack, &$latest, &$memory) {
             $stack[count($stack) - 1] = $e;
             $latest = $e;
             $memory = '';
         };
-        $pushMemoryConstants = function() use (&$stack, &$latest, &$memory, $push) {
+        $pushMemoryConstants = function () use (&$stack, &$latest, &$memory, $push) {
             if (strlen($memory)) {
                 $constants = Constant::fromString($memory);
-                foreach($constants as $constant) {
+                foreach ($constants as $constant) {
                     $push($constant);
                 }
             }
@@ -64,18 +69,22 @@ class Expression extends Element
                 if ($char === '(') {
                     $bracket_stack[] = $char;
                 } elseif ($char === ')') {
-                    $assert(array_pop($bracket_stack) === match($char) {')' => '(', ']' => '['}, "$char didn't match the previously opened bracket type");
+                    $assert(array_pop($bracket_stack) === match ($char) {
+                        ')' => '(', ']' => '['
+                    }, "$char didn't match the previously opened bracket type");
                     $push(Expression::fromPattern($memory));
+
                     continue;
                 }
                 $memory .= $char;
             } elseif ($char === '\\') {
                 $pushMemoryConstants();
-                $assert(($i+1) <= $length, "Can't have \\ as the last character in an expression");
-                $nextchar = mb_substr($pattern, $i+1, 1);
+                $assert(($i + 1) <= $length, "Can't have \\ as the last character in an expression");
+                $nextchar = mb_substr($pattern, $i + 1, 1);
                 $i++;
                 if (in_array($nextchar, ['s', 'S', 'd', 'D', 'w', 'W'])) {
                     $push(Characters::fromClass($nextchar));
+
                     continue;
                 }
                 $memory .= $nextchar;
@@ -87,7 +96,7 @@ class Expression extends Element
                 $pushMemoryConstants();
                 $assert($latest instanceof Element, "Can't have $char at the start of an expression");
                 /** @var Element $latest */
-                $replaceLast(match($char) {
+                $replaceLast(match ($char) {
                     '?' => Multiple::optional($latest),
                     '*' => Multiple::zeroOrMany($latest),
                     '+' => Multiple::oneOrMany($latest)
@@ -96,7 +105,9 @@ class Expression extends Element
                 $pushMemoryConstants();
                 $bracket_stack[] = $char;
             } elseif (in_array($char, [']', ')'])) {
-                $assert(array_pop($bracket_stack) === match($char) {')' => '(', ']' => '['}, "$char didn't match the previously opened bracket type");
+                $assert(array_pop($bracket_stack) === match ($char) {
+                    ')' => '(', ']' => '['
+                }, "$char didn't match the previously opened bracket type");
                 if ($char === ']') {
                     $push(Characters::fromPattern($memory));
                 }
@@ -107,11 +118,11 @@ class Expression extends Element
                 $latest = null;
                 $memory = '';
             } elseif ($char === '{') {
-                $assert(($i+1) <= $length, "Can't have { as the last character in an expression");
-                $closing_index = mb_strpos($pattern, '}', $i+1);
+                $assert(($i + 1) <= $length, "Can't have { as the last character in an expression");
+                $closing_index = mb_strpos($pattern, '}', $i + 1);
                 $assert($closing_index !== false, "Opening { must be matched with closing }");
                 $substr_len = $closing_index - $i - 1;
-                $multiply_info = mb_substr($pattern, $i+1, $substr_len);
+                $multiply_info = mb_substr($pattern, $i + 1, $substr_len);
                 if (strpos($multiply_info, ',') === false) {
                     $parts = [$multiply_info, $multiply_info];
                 } else {
@@ -138,11 +149,12 @@ class Expression extends Element
             }
         }
         $pushMemoryConstants();
-        
+
         if (count($alternativesStack) === 0) {
             return $stack;
         }
         $alternativesStack[] = new Expression($stack);
+
         return [new Alternative($alternativesStack)];
     }
 }

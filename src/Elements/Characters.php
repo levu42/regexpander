@@ -11,20 +11,22 @@ class Characters extends Element
     private const extra = 'ÄÖÜëïäöüëïáéíóúâêîôûàèìòùþÞðÐæÆ!"#$%&/()=-\\}][{?\'~*+`´^.:,;<>|';
     private const underscore = '_';
     private const whitespace = " \n\r\t";
-    
+
     public function __construct(
         private string $characters
-    ) {}
+    ) {
+    }
 
     public function generate(): string
     {
         $length = mb_strlen($this->characters);
+
         return mb_substr($this->characters, rand(0, $length - 1), 1);
     }
 
     public static function fromClass(string $which): self
     {
-        return new self(match($which) {
+        return new self(match ($which) {
             'd' => self::digits,
             'D' => self::az . self::extra . self::underscore . self::whitespace,
             'w' => self::az . self::digits . self::underscore,

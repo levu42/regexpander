@@ -8,7 +8,8 @@ class Multiple extends Element
         private Element $element,
         private int $min,
         private int $max
-    ) {}
+    ) {
+    }
 
     public function generate(): string
     {
@@ -17,6 +18,7 @@ class Multiple extends Element
         for ($i = 0; $i < $number; $i++) {
             $return .= $this->element->generate();
         }
+
         return $return;
     }
 
