@@ -2,7 +2,9 @@
     "name": "levu42/regexpander",
     "description": "PHP library that expands a regular expression into a random string that matches this pattern",
     "keywords": [
-        "levu42",
+        "regular expression",
+        "regex",
+        "pattern",
         "regexpander"
     ],
     "homepage": "https://github.com/levu42/regexpander",
