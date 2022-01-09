@@ -8,7 +8,7 @@ class RegExpander
 {
     public static function generate(string $pattern): string
     {
-        $expression = new Expression($pattern);
+        $expression = Expression::fromPattern($pattern);
 
         return $expression->generate();
     }

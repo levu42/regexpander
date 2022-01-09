@@ -2,6 +2,6 @@
 
 All notable changes to `regexpander` will be documented in this file.
 
-## 1.0.0 - 202X-XX-XX
+## 0.0.1 - 2022-01-09
 
-- initial release
+- code seems to work, not documented or tested, yolo
